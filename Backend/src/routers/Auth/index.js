@@ -25,9 +25,9 @@ router.post('/register', (req,res) => {
 
 router.post('/login', async (req,res) => {
     const {username,password} = req.body;
+    console.log(username,password,users);
     const user = users.find( u => u.username === username );
-
-    if (user && bcrypt.compareSync(password,user.password)) {
+    if (user && bcrypt.compare(password,user.password)) {
         const accessToken = await JWT.sign({ username: user.username }, accessTokenSecret, { expiresIn: '20m' });
         const refreshToken = await JWT.sign({ username: user.username }, refreshTokenSecret, { expiresIn: '7d' });
         refreshTokens.push(refreshToken);
@@ -41,21 +41,23 @@ router.post('/login', async (req,res) => {
     
 })
 
-router.post("/token", (req,res) => {
-    const {token} = req.body;
-    if (!token) {
-        return res.sendStatus(401);
+router.post("/token", (req, res) => {
+    const authHeader = req.headers['authorization'];
+    if (!authHeader) {
+      return res.sendStatus(401);
     }
+    const token = authHeader.split(' ')[1];
     if (!refreshTokens.includes(token)) {
-        return res.sendStatus(403);
+      return res.sendStatus(403);
     }
     JWT.verify(token, refreshTokenSecret, async (err, decoded) => {
-        if (err) {
-            return res.sendStatus(403);
-        }
-        const accessToken = await JWT.sign({ username: decoded.username }, accessTokenSecret, { expiresIn: '20m' });
-        res.json({accessToken});
+      if (err) {
+        return res.sendStatus(403);
+      }
+      const accessToken = await JWT.sign({ username: decoded.username }, accessTokenSecret, { expiresIn: '20m' });
+      res.json({ accessToken });
     });
-});
+  });
+  
 
 module.exports =  router;

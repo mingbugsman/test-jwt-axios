@@ -6,8 +6,8 @@ POST {{url_dev}}/register
 Content-Type: application/json
 
 {
-    "username" : "TuanMinh2",
-    "password" : "deptraiso1"
+    "username" : "username",
+    "password" : "password"
 }
 
 ###
@@ -15,13 +15,9 @@ POST {{url_dev}}/login
 Content-Type: application/json
 
 {
-    "username" : "TuanMinh2",
-    "password" : "deptraiso1"
+    "username" : "username",
+    "password" : "password"
 }
 ###
 POST {{url_dev}}/token
 Content-Type: application/json
-
-{
-    "token" : "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6IlR1YW5NaW5oMiIsImlhdCI6MTcyMTQ1NTU2NCwiZXhwIjoxNzIyMDYwMzY0fQ.mrH9SCBYnB9HKTfJ313bB-TxZ2ykMJ4XC_AEkzbS24s"
-}
