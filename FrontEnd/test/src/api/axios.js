@@ -20,23 +20,26 @@ axiosInstance.interceptors.request.use((config) => {
 });
 
 axiosInstance.interceptors.response.use(
-  (response) => response,
+  (response) =>{
+    return response
+  },
   async (error) => {
+    console.log(error);
     const originalRequest = error.config;
-    if (error.response.status === 401 && !originalRequest._retry) {
-        originalRequest._retry = true;
-        const state = store.getSatee();
+    if (error.response.status === 403 || error.response.status == 401) {
+        const state = store.getState();
         const token = state.auth.refreshToken || localStorage.getItem('refreshToken');
         if (token) {
             const response = await store.dispatch(refreshToken({token}));
+            console.log(response);
             if (response.payload.accessToken) {
                 store.dispatch(setAccessToken(response.payload.accessToken));
                 originalRequest.headers.Authorization = `Bearer ${response.payload.accessToken}`;
-                return axiosInstance(originalRequest);
+                axiosInstance(originalRequest);
             }
         }
     }
-    return Promise.reject(error);
+    return error;
 });
 
 export default axiosInstance;

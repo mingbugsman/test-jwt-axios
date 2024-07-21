@@ -17,8 +17,14 @@ function App() {
 
   const fetchData = async () => {
     try {
-      const response = await axiosInstance.get('http://localhost:5000/v1/api/');
-      console.log(response.data);
+      if (accessToken) {
+        const response = await axiosInstance.get('http://localhost:5000/v1/api/data',{
+          headers: {
+            Authorization: `Bearer ${accessToken}`
+        }
+        });
+        console.log(response);
+      }
     } catch (error) {
       console.error('Error fetching data', error);
     }

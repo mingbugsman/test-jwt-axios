@@ -7,7 +7,7 @@ const users = [];
 const accessTokenSecret = process.env.accessTokenSecret
 const refreshTokenSecret =process.env.refreshTokenSecret
 
-let refreshTokens = [];
+const refreshTokens = [];
 
 
 router.post('/register', (req,res) => {
@@ -28,7 +28,7 @@ router.post('/login', async (req,res) => {
     console.log(username,password,users);
     const user = users.find( u => u.username === username );
     if (user && bcrypt.compare(password,user.password)) {
-        const accessToken = await JWT.sign({ username: user.username }, accessTokenSecret, { expiresIn: '20m' });
+        const accessToken = await JWT.sign({ username: user.username }, accessTokenSecret, { expiresIn: '15s' });
         const refreshToken = await JWT.sign({ username: user.username }, refreshTokenSecret, { expiresIn: '7d' });
         refreshTokens.push(refreshToken);
         res.json({accessToken, refreshToken });
@@ -38,15 +38,14 @@ router.post('/login', async (req,res) => {
             message : "username or password incorrect"
         })
     }
-    
 })
 
 router.post("/token", (req, res) => {
-    const authHeader = req.headers['authorization'];
-    if (!authHeader) {
+    const {token} = req.body;
+    if (!token) {
       return res.sendStatus(401);
     }
-    const token = authHeader.split(' ')[1];
+
     if (!refreshTokens.includes(token)) {
       return res.sendStatus(403);
     }
@@ -54,7 +53,7 @@ router.post("/token", (req, res) => {
       if (err) {
         return res.sendStatus(403);
       }
-      const accessToken = await JWT.sign({ username: decoded.username }, accessTokenSecret, { expiresIn: '20m' });
+      const accessToken = await JWT.sign({ username: decoded.username }, accessTokenSecret, { expiresIn: '15s' });
       res.json({ accessToken });
     });
   });
