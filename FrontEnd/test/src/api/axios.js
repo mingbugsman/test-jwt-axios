@@ -26,20 +26,24 @@ axiosInstance.interceptors.response.use(
   async (error) => {
     console.log(error);
     const originalRequest = error.config;
-    if (error.response.status === 403 || error.response.status == 401) {
+    console.log(originalRequest._retry);
+    if (error.response.status === 403 && !originalRequest._retry) {
+        originalRequest._retry = true;
         const state = store.getState();
         const token = state.auth.refreshToken || localStorage.getItem('refreshToken');
+        console.log('After setting _retry:', originalRequest._retry);
         if (token) {
             const response = await store.dispatch(refreshToken({token}));
             console.log(response);
             if (response.payload.accessToken) {
                 store.dispatch(setAccessToken(response.payload.accessToken));
+                axios.defaults.headers.common.Authorization =  `Bearer ${response.payload.accessToken}`;
                 originalRequest.headers.Authorization = `Bearer ${response.payload.accessToken}`;
-                axiosInstance(originalRequest);
+                return axiosInstance(originalRequest);
             }
         }
     }
-    return error;
+    return Promise.reject(error);
 });
 
 export default axiosInstance;

@@ -5,13 +5,16 @@ import axios from "axios";
 
 export const login = createAsyncThunk('auth/login', async ({username,password}) => {
     const response = await axios.post("http://localhost:5000/v1/api/login",{username,password});
-    console.log(response)
     return response.data;
 })
 
-export const refreshToken = createAsyncThunk('auth/refreshToken', async ({token}) => {
-    const response = await axios.post("http://localhost:5000/v1/api/token", {token});
-    return response.data;
+export const refreshToken = createAsyncThunk('auth/refreshToken', async ({token}, { rejectWithValue }) => {
+    try {
+        const response = await axios.post("http://localhost:5000/v1/api/token", {token});
+        return response.data;
+    } catch (error) {
+        return rejectWithValue(error);
+    }
 })
 
 const authSlice = createSlice({
